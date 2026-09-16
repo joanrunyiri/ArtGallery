@@ -10,6 +10,7 @@ import (
 	"github.com/joanrunyiri/ArtGallery/backend/internal/dashboard"
 	"github.com/joanrunyiri/ArtGallery/backend/internal/database"
 	"github.com/joanrunyiri/ArtGallery/backend/internal/event"
+	"github.com/joanrunyiri/ArtGallery/backend/internal/middleware"
 )
 
 func main() {
@@ -40,6 +41,9 @@ func main() {
 	dashboardHandler := dashboard.DashboardHandler(dashboardService)
 
 	router := chi.NewRouter()
+
+	router.Use(middleware.Logger)
+	router.Use(middleware.CORS)
 
 	//artist routes
 
