@@ -251,6 +251,72 @@ func seedDemoData(db *sql.DB) error {
 		}
 	}
 
+	eventResult, err := tx.Exec(`
+	INSERT INTO events (
+		name,
+		start_date,
+		end_date,
+		ticket_price
+	)
+	VALUES (?, ?, ?, ?)
+`,
+		"Whispers of the Forgotten",
+		"2026-09-14",
+		"2026-09-20",
+		50.00,
+	)
+	if err != nil {
+		return fmt.Errorf("insert demo event: %w", err)
+	}
+
+	eventID, err := eventResult.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("get inserted event ID: %w", err)
+	}
+
+	metrics := []struct {
+		date            string
+		eventViews      int
+		ticketPageViews int
+		ticketsSold     int
+		revenue         float64
+	}{
+		{"2026-09-14", 1450, 280, 32, 1600},
+		{"2026-09-15", 1620, 310, 38, 1900},
+		{"2026-09-16", 1780, 350, 44, 2200},
+		{"2026-09-17", 1690, 325, 41, 2050},
+		{"2026-09-18", 1850, 370, 48, 2400},
+		{"2026-09-19", 2140, 420, 57, 2850},
+		{"2026-09-20", 1920, 390, 52, 2600},
+	}
+	for _, metric := range metrics {
+		_, err := tx.Exec(`
+		INSERT INTO event_daily_metrics (
+			event_id,
+			metric_date,
+			event_views,
+			ticket_page_views,
+			tickets_sold,
+			revenue
+		)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`,
+			eventID,
+			metric.date,
+			metric.eventViews,
+			metric.ticketPageViews,
+			metric.ticketsSold,
+			metric.revenue,
+		)
+		if err != nil {
+			return fmt.Errorf(
+				"insert event metrics for %s: %w",
+				metric.date,
+				err,
+			)
+		}
+	}
+
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit seed transaction: %w", err)
 	}

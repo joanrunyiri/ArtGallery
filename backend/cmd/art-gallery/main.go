@@ -7,7 +7,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/joanrunyiri/ArtGallery/backend/internal/artist"
 	"github.com/joanrunyiri/ArtGallery/backend/internal/artwork"
+	"github.com/joanrunyiri/ArtGallery/backend/internal/dashboard"
 	"github.com/joanrunyiri/ArtGallery/backend/internal/database"
+	"github.com/joanrunyiri/ArtGallery/backend/internal/event"
 )
 
 func main() {
@@ -33,6 +35,9 @@ func main() {
 		artistRepository,
 	)
 	artworkHandler := artwork.ArtworkHandler(artworkService)
+	eventRepository := event.EventRepository(db)
+	dashboardService := dashboard.DashboardService(eventRepository)
+	dashboardHandler := dashboard.DashboardHandler(dashboardService)
 
 	router := chi.NewRouter()
 
@@ -50,6 +55,9 @@ func main() {
 	router.Post("/api/artworks", artworkHandler.Create)
 	router.Put("/api/artworks/{id}", artworkHandler.Update)
 	router.Delete("/api/artworks/{id}", artworkHandler.Delete)
+
+	//event stats
+	router.Get("/api/dashboard", dashboardHandler.Get)
 
 	log.Println("server listening on http://localhost:8080")
 
