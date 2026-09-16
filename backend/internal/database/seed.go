@@ -103,6 +103,153 @@ func seedDemoData(db *sql.DB) error {
 
 		artistIDs[artist.key] = id
 	}
+	artworks := []struct {
+		artistKey            string
+		title                string
+		pricingType          string
+		price                float64
+		description          string
+		height               float64
+		width                float64
+		depth                float64
+		dimensionUnit        string
+		framing              string
+		medium               string
+		releaseDate          string
+		editionSize          int
+		materials            string
+		handSigned           bool
+		individuallyNumbered bool
+		coaIncluded          bool
+		packaging            string
+		imageURL             string
+	}{
+		{
+			artistKey:            "james-appiah",
+			title:                "Whispers of Memory",
+			pricingType:          "Fixed Price",
+			price:                4200,
+			description:          "A contemplative exploration of memory and identity.",
+			height:               120,
+			width:                90,
+			depth:                3,
+			dimensionUnit:        "cm",
+			framing:              "Framed",
+			medium:               "Oil on canvas",
+			releaseDate:          "2026-03-15",
+			editionSize:          1,
+			materials:            "Oil, canvas",
+			handSigned:           true,
+			individuallyNumbered: false,
+			coaIncluded:          true,
+			packaging:            "Wooden crate",
+			imageURL:             "/images/artworks/whispers-of-memory.jpg",
+		},
+		{
+			artistKey:            "amara-okafor",
+			title:                "Fragments",
+			pricingType:          "Fixed Price",
+			price:                3100,
+			description:          "A mixed-media work exploring fragmented personal histories.",
+			height:               100,
+			width:                80,
+			depth:                2,
+			dimensionUnit:        "cm",
+			framing:              "Unframed",
+			medium:               "Mixed media",
+			releaseDate:          "2026-05-10",
+			editionSize:          1,
+			materials:            "Acrylic, paper, canvas",
+			handSigned:           true,
+			individuallyNumbered: false,
+			coaIncluded:          true,
+			packaging:            "Protective art box",
+			imageURL:             "/images/artworks/fragments.jpg",
+		},
+		{
+			artistKey:            "leila-hassan",
+			title:                "Between Places",
+			pricingType:          "Fixed Price",
+			price:                2800,
+			description:          "A study of movement, belonging, and the spaces between destinations.",
+			height:               75,
+			width:                60,
+			depth:                2,
+			dimensionUnit:        "cm",
+			framing:              "Framed",
+			medium:               "Acrylic on canvas",
+			releaseDate:          "2026-06-21",
+			editionSize:          1,
+			materials:            "Acrylic, canvas",
+			handSigned:           true,
+			individuallyNumbered: false,
+			coaIncluded:          true,
+			packaging:            "Protective art box",
+			imageURL:             "/images/artworks/between-places.jpg",
+		},
+	}
+
+	for _, artwork := range artworks {
+		artistID, ok := artistIDs[artwork.artistKey]
+		if !ok {
+			return fmt.Errorf(
+				"artist ID not found for seed key %s",
+				artwork.artistKey,
+			)
+		}
+
+		_, err := tx.Exec(`
+		INSERT INTO artworks (
+			artist_id,
+			title,
+			pricing_type,
+			price,
+			description,
+			height,
+			width,
+			depth,
+			dimension_unit,
+			framing,
+			medium,
+			release_date,
+			edition_size,
+			materials,
+			hand_signed,
+			individually_numbered,
+			coa_included,
+			packaging,
+			image_url
+		)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`,
+			artistID,
+			artwork.title,
+			artwork.pricingType,
+			artwork.price,
+			artwork.description,
+			artwork.height,
+			artwork.width,
+			artwork.depth,
+			artwork.dimensionUnit,
+			artwork.framing,
+			artwork.medium,
+			artwork.releaseDate,
+			artwork.editionSize,
+			artwork.materials,
+			artwork.handSigned,
+			artwork.individuallyNumbered,
+			artwork.coaIncluded,
+			artwork.packaging,
+			artwork.imageURL,
+		)
+		if err != nil {
+			return fmt.Errorf(
+				"insert artwork %s: %w",
+				artwork.title,
+				err,
+			)
+		}
+	}
 
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit seed transaction: %w", err)
