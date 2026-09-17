@@ -7,6 +7,8 @@ import type { Artwork, ArtworkInput } from "@/types/artworks";
 import { createArtwork, updateArtwork, deleteArtwork } from "@/lib/api";
 import ArtworkDrawer from "./artwork-drawer";
 import ExhibitionLabel from "./exhibition-label";
+import ArtworkDetailsDrawer from "./artwork-details-drawer";
+
 type ArtworksClientProps = {
   initialArtworks: Artwork[];
   artists: Artist[];
@@ -20,11 +22,12 @@ export default function ArtworksClient({
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [detailArtwork, setDetailArtwork] = useState<Artwork | null>(null);
+  const [labelArtwork, setLabelArtwork] = useState<Artwork | null>(null);
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
-  const [labelArtwork, setLabelArtwork] = useState<Artwork | null>(null);
 
   const filteredArtworks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -96,6 +99,7 @@ export default function ArtworksClient({
       setSaving(false);
     }
   }
+
   async function handleDelete() {
     if (!selectedArtwork) {
       return;
@@ -125,16 +129,45 @@ export default function ArtworksClient({
       setDeleting(false);
     }
   }
+
+  async function handleDetailDelete() {
+    if (!detailArtwork) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete "${detailArtwork.title}"?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setError("");
+
+      await deleteArtwork(detailArtwork.id);
+
+      setArtworks((current) =>
+        current.filter((artwork) => artwork.id !== detailArtwork.id),
+      );
+
+      setDetailArtwork(null);
+    } catch {
+      setError("Unable to delete artwork. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-[1600px]">
+      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-950">
-            Artworks
-          </h1>
+          <h1 className="text-3xl font-medium text-gray-950">Artworks</h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Manage artworks in your gallery collection.
+            Browse, organize and manage artworks in your collection.
           </p>
         </div>
 
@@ -152,8 +185,9 @@ export default function ArtworksClient({
         </button>
       </div>
 
+      {/* Search */}
       <div className="mb-6">
-        <div className="relative max-w-sm">
+        <div className="relative max-w-md">
           <Search
             size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -164,16 +198,19 @@ export default function ArtworksClient({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search artworks"
-            className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-gray-400"
+            className="w-full rounded-full border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-gray-400"
           />
         </div>
       </div>
+
+      {/* Error */}
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
+      {/* Artworks */}
       {filteredArtworks.length === 0 ? (
         <div className="flex min-h-96 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
@@ -189,77 +226,92 @@ export default function ArtworksClient({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3">
           {filteredArtworks.map((artwork) => (
             <div
               key={artwork.id}
-              className="overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:shadow-sm"
+              className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedArtwork(artwork);
+                  setDetailArtwork(artwork);
                   setError("");
-                  setDrawerOpen(true);
                 }}
                 className="block w-full text-left"
               >
-                <div className="flex aspect-[4/3] items-center justify-center bg-gray-100">
-                  <ImageIcon
-                    size={28}
-                    strokeWidth={1.5}
-                    className="text-gray-400"
-                  />
+                {/* Artwork image placeholder */}
+                <div className="aspect-[4/5] bg-gray-100">
+                  <div className="flex h-full items-center justify-center">
+                    <ImageIcon
+                      size={30}
+                      strokeWidth={1.4}
+                      className="text-gray-400"
+                    />
+                  </div>
                 </div>
 
                 <div className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <h2 className="truncate text-sm font-semibold text-gray-950">
-                        {artwork.title}
-                      </h2>
+                  <h2 className="text-base font-medium text-gray-950">
+                    {artwork.title}
+                  </h2>
 
-                      <p className="mt-1 text-sm text-gray-500">
-                        {getArtistName(artwork.artist_id)}
-                      </p>
-                    </div>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {getArtistName(artwork.artist_id)}
+                  </p>
+
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wide text-gray-400">
+                      {artwork.medium || "Artwork"}
+                    </span>
 
                     {artwork.price != null && (
-                      <p className="shrink-0 text-sm font-medium text-gray-950">
+                      <span className="text-sm font-medium text-gray-950">
                         ${artwork.price.toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-2">
-                    {artwork.medium && (
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-                        {artwork.medium}
                       </span>
                     )}
-
-                    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-                      {artwork.pricing_type}
-                    </span>
                   </div>
                 </div>
               </button>
-
-              <div className="border-t border-gray-100 px-5 py-3">
-                <button
-                  type="button"
-                  onClick={() => setLabelArtwork(artwork)}
-                  className="text-sm font-medium text-gray-700 hover:text-gray-950"
-                >
-                  Exhibition Label
-                </button>
-              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Artwork details */}
+      <ArtworkDetailsDrawer
+        artwork={detailArtwork}
+        artist={
+          detailArtwork?.artist_id
+            ? (artists.find(
+                (artist) => artist.id === detailArtwork.artist_id,
+              ) ?? null)
+            : null
+        }
+        onClose={() => setDetailArtwork(null)}
+        onEdit={() => {
+          if (!detailArtwork) {
+            return;
+          }
+
+          setSelectedArtwork(detailArtwork);
+          setDetailArtwork(null);
+          setDrawerOpen(true);
+        }}
+        onEditLabel={() => {
+          if (!detailArtwork) {
+            return;
+          }
+
+          setLabelArtwork(detailArtwork);
+          setDetailArtwork(null);
+        }}
+        onDelete={handleDetailDelete}
+      />
+
+      {/* Add/Edit artwork */}
       <ArtworkDrawer
-        key={selectedArtist?.id ?? "new"}
+        key={selectedArtwork?.id ?? "new"}
         open={drawerOpen}
         artwork={selectedArtwork}
         artists={artists}
@@ -273,6 +325,8 @@ export default function ArtworksClient({
         onSave={handleSave}
         onDelete={handleDelete}
       />
+
+      {/* Exhibition label */}
       {labelArtwork && (
         <ExhibitionLabel
           artwork={labelArtwork}

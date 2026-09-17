@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
-import type { Artist } from "@/types/artist";
-import type { Artwork, ArtworkInput } from "@/types/artwork";
+import { ImageIcon, X } from "lucide-react";
+import type { Artist } from "@/types/artists";
+import type { Artwork, ArtworkInput } from "@/types/artworks";
 
 type ArtworkDrawerProps = {
   open: boolean;
@@ -37,6 +37,7 @@ const emptyArtwork: ArtworkInput = {
   packaging: "",
   image_url: "",
 };
+
 function getInitialForm(artwork: Artwork | null): ArtworkInput {
   if (!artwork) {
     return { ...emptyArtwork };
@@ -81,7 +82,7 @@ export default function ArtworkDrawer({
     field: K,
     value: ArtworkInput[K],
   ) {
-    setForm((current: ArtworkInput) => ({
+    setForm((current) => ({
       ...current,
       [field]: value,
     }));
@@ -97,33 +98,39 @@ export default function ArtworkDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
+      {/* Dimmed Artworks page */}
       <button
         type="button"
         aria-label="Close artwork drawer"
         onClick={onClose}
-        className="absolute inset-0 bg-black/20"
+        className="absolute inset-0 bg-black/25"
       />
 
-      <div className="relative flex h-full w-full max-w-2xl flex-col bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+      {/* Drawer */}
+      <div className="relative flex h-full w-full max-w-[620px] flex-col bg-white shadow-xl">
+        {/* Header */}
+        <header className="flex shrink-0 items-start justify-between border-b border-gray-200 px-8 py-6">
           <div>
-            <h2 className="text-lg font-semibold text-gray-950">
-              {artwork ? "Edit Artwork" : "Add Artwork"}
+            <h2 className="text-lg font-medium text-gray-950">
+              {artwork ? "Edit artwork" : "Add artwork"}
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Add artwork information and catalogue details.
+              {artwork
+                ? "Update artwork and catalogue information."
+                : "Add a new artwork to your collection."}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+            aria-label="Close artwork drawer"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
           >
             <X size={18} />
           </button>
-        </div>
+        </header>
 
         <form
           id="artwork-form"
@@ -131,225 +138,351 @@ export default function ArtworkDrawer({
             event.preventDefault();
             await save(false);
           }}
-          className="flex-1 overflow-y-auto px-6 py-6"
+          className="flex-1 overflow-y-auto"
         >
-          <div className="space-y-6">
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="mb-4 text-sm font-semibold text-gray-950">
-                Edition & Catalogue
-              </h3>
+          {/* Image */}
+          <FormSection
+            title="Artwork image"
+            description="Add an image reference for this artwork."
+          >
+            <div className="flex gap-5">
+              <div className="flex h-32 w-28 shrink-0 items-center justify-center border border-gray-200 bg-gray-50">
+                <ImageIcon
+                  size={26}
+                  strokeWidth={1.4}
+                  className="text-gray-400"
+                />
+              </div>
+
+              <div className="flex-1">
+                <FieldLabel>Image URL</FieldLabel>
+
+                <input
+                  type="url"
+                  value={form.image_url ?? ""}
+                  onChange={(event) =>
+                    updateField("image_url", event.target.value)
+                  }
+                  placeholder="https://..."
+                  className={inputClass}
+                />
+
+                <p className="mt-2 text-xs leading-5 text-gray-400">
+                  For this demo, artwork images are referenced by URL rather
+                  than uploaded to external storage.
+                </p>
+              </div>
+            </div>
+          </FormSection>
+
+          {/* Artwork information */}
+          <FormSection
+            title="Artwork details"
+            description="Core catalogue information for the artwork."
+          >
+            <div className="space-y-5">
+              <div>
+                <FieldLabel>Title</FieldLabel>
+
+                <input
+                  required
+                  value={form.title}
+                  onChange={(event) => updateField("title", event.target.value)}
+                  placeholder="Artwork title"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <FieldLabel>Artist</FieldLabel>
+
+                <select
+                  value={form.artist_id ?? ""}
+                  onChange={(event) =>
+                    updateField(
+                      "artist_id",
+                      event.target.value ? Number(event.target.value) : null,
+                    )
+                  }
+                  className={inputClass}
+                >
+                  <option value="">Unassigned</option>
+
+                  {artists.map((artist) => (
+                    <option key={artist.id} value={artist.id}>
+                      {artist.first_name} {artist.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <FieldLabel>Description</FieldLabel>
+
+                <textarea
+                  rows={4}
+                  value={form.description ?? ""}
+                  onChange={(event) =>
+                    updateField("description", event.target.value)
+                  }
+                  placeholder="Describe the artwork"
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <label className="text-sm text-gray-700">
-                  Release Date
-                  <input
-                    type="date"
-                    value={form.release_date ?? ""}
-                    onChange={(event) =>
-                      updateField("release_date", event.target.value)
-                    }
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5"
-                  />
-                </label>
+                <div>
+                  <FieldLabel>Medium</FieldLabel>
 
-                <label className="text-sm text-gray-700">
-                  Edition Size
                   <input
-                    type="number"
-                    min="0"
-                    value={form.edition_size ?? ""}
+                    value={form.medium ?? ""}
                     onChange={(event) =>
-                      updateField(
-                        "edition_size",
-                        event.target.value ? Number(event.target.value) : null,
-                      )
+                      updateField("medium", event.target.value)
                     }
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5"
+                    placeholder="e.g. Oil on canvas"
+                    className={inputClass}
                   />
-                </label>
+                </div>
 
-                <label className="col-span-2 text-sm text-gray-700">
-                  Materials
-                  <input
-                    value={form.materials ?? ""}
-                    onChange={(event) =>
-                      updateField("materials", event.target.value)
-                    }
-                    placeholder="e.g. Oil paint, linen canvas"
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5"
-                  />
-                </label>
-              </div>
+                <div>
+                  <FieldLabel>Framing</FieldLabel>
 
-              <div className="mt-5 space-y-3">
-                <label className="flex items-center gap-3 text-sm text-gray-700">
                   <input
-                    type="checkbox"
-                    checked={form.hand_signed}
+                    value={form.framing ?? ""}
                     onChange={(event) =>
-                      updateField("hand_signed", event.target.checked)
+                      updateField("framing", event.target.value)
                     }
-                    className="h-4 w-4"
+                    placeholder="e.g. Unframed"
+                    className={inputClass}
                   />
-                  Hand signed
-                </label>
-
-                <label className="flex items-center gap-3 text-sm text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={form.individually_numbered}
-                    onChange={(event) =>
-                      updateField("individually_numbered", event.target.checked)
-                    }
-                    className="h-4 w-4"
-                  />
-                  Individually numbered
-                </label>
-
-                <label className="flex items-center gap-3 text-sm text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={form.coa_included}
-                    onChange={(event) =>
-                      updateField("coa_included", event.target.checked)
-                    }
-                    className="h-4 w-4"
-                  />
-                  Certificate of authenticity included
-                </label>
+                </div>
               </div>
             </div>
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="mb-4 text-sm font-semibold text-gray-950">
-                Packaging & Image
-              </h3>
+          </FormSection>
 
-              <div className="space-y-4">
-                <label className="block text-sm text-gray-700">
-                  Packaging
-                  <input
-                    value={form.packaging ?? ""}
-                    onChange={(event) =>
-                      updateField("packaging", event.target.value)
-                    }
-                    placeholder="e.g. Wooden crate"
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5"
-                  />
-                </label>
+          {/* Pricing */}
+          <FormSection
+            title="Pricing"
+            description="Set the artwork's availability and price."
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Pricing type</FieldLabel>
 
-                <label className="block text-sm text-gray-700">
-                  Image URL
-                  <input
-                    type="url"
-                    value={form.image_url ?? ""}
-                    onChange={(event) =>
-                      updateField("image_url", event.target.value)
-                    }
-                    placeholder="https://..."
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5"
-                  />
-                </label>
+                <select
+                  value={form.pricing_type}
+                  onChange={(event) =>
+                    updateField("pricing_type", event.target.value)
+                  }
+                  className={inputClass}
+                >
+                  <option value="fixed">Fixed price</option>
+                  <option value="contact">Price on request</option>
+                  <option value="not_for_sale">Not for sale</option>
+                </select>
+              </div>
+
+              <div>
+                <FieldLabel>Price</FieldLabel>
+
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  disabled={form.pricing_type !== "fixed"}
+                  value={form.price ?? ""}
+                  onChange={(event) =>
+                    updateField(
+                      "price",
+                      event.target.value ? Number(event.target.value) : null,
+                    )
+                  }
+                  placeholder="0.00"
+                  className={`${inputClass} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`}
+                />
               </div>
             </div>
-            <div>
-              <h3 className="mb-4 text-sm font-semibold text-gray-950">
-                Artwork Details
-              </h3>
+          </FormSection>
 
-              <div className="grid grid-cols-2 gap-4">
-                <label className="col-span-2 text-sm text-gray-700">
-                  Title
-                  <input
-                    required
-                    value={form.title}
-                    onChange={(event) =>
-                      updateField("title", event.target.value)
-                    }
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-gray-400"
-                  />
-                </label>
+          {/* Dimensions */}
+          <FormSection
+            title="Dimensions"
+            description="Record the physical dimensions of the artwork."
+          >
+            <div className="grid grid-cols-4 gap-3">
+              <div>
+                <FieldLabel>Height</FieldLabel>
 
-                <label className="col-span-2 text-sm text-gray-700">
-                  Artist
-                  <select
-                    value={form.artist_id ?? ""}
-                    onChange={(event) =>
-                      updateField(
-                        "artist_id",
-                        event.target.value ? Number(event.target.value) : null,
-                      )
-                    }
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 outline-none focus:border-gray-400"
-                  >
-                    <option value="">Unassigned</option>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.height ?? ""}
+                  onChange={(event) =>
+                    updateField(
+                      "height",
+                      event.target.value ? Number(event.target.value) : null,
+                    )
+                  }
+                  className={inputClass}
+                />
+              </div>
 
-                    {artists.map((artist) => (
-                      <option key={artist.id} value={artist.id}>
-                        {artist.first_name} {artist.last_name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div>
+                <FieldLabel>Width</FieldLabel>
 
-                <label className="text-sm text-gray-700">
-                  Pricing Type
-                  <select
-                    value={form.pricing_type}
-                    onChange={(event) =>
-                      updateField("pricing_type", event.target.value)
-                    }
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5"
-                  >
-                    <option value="fixed">Fixed Price</option>
-                    <option value="contact">Price on Request</option>
-                    <option value="not_for_sale">Not for Sale</option>
-                  </select>
-                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.width ?? ""}
+                  onChange={(event) =>
+                    updateField(
+                      "width",
+                      event.target.value ? Number(event.target.value) : null,
+                    )
+                  }
+                  className={inputClass}
+                />
+              </div>
 
-                <label className="text-sm text-gray-700">
-                  Price
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    disabled={form.pricing_type !== "fixed"}
-                    value={form.price ?? ""}
-                    onChange={(event) =>
-                      updateField(
-                        "price",
-                        event.target.value ? Number(event.target.value) : null,
-                      )
-                    }
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5 disabled:bg-gray-50"
-                  />
-                </label>
+              <div>
+                <FieldLabel>Depth</FieldLabel>
 
-                <label className="col-span-2 text-sm text-gray-700">
-                  Description
-                  <textarea
-                    rows={4}
-                    value={form.description ?? ""}
-                    onChange={(event) =>
-                      updateField("description", event.target.value)
-                    }
-                    className="mt-1.5 w-full resize-none rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-gray-400"
-                  />
-                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.depth ?? ""}
+                  onChange={(event) =>
+                    updateField(
+                      "depth",
+                      event.target.value ? Number(event.target.value) : null,
+                    )
+                  }
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <FieldLabel>Unit</FieldLabel>
+
+                <select
+                  value={form.dimension_unit ?? "cm"}
+                  onChange={(event) =>
+                    updateField("dimension_unit", event.target.value)
+                  }
+                  className={inputClass}
+                >
+                  <option value="cm">cm</option>
+                  <option value="in">in</option>
+                  <option value="mm">mm</option>
+                </select>
               </div>
             </div>
-          </div>
+          </FormSection>
+
+          {/* Edition */}
+          <FormSection
+            title="Edition & catalogue"
+            description="Add edition and authentication information."
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Release date</FieldLabel>
+
+                <input
+                  type="date"
+                  value={form.release_date ?? ""}
+                  onChange={(event) =>
+                    updateField("release_date", event.target.value)
+                  }
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <FieldLabel>Edition size</FieldLabel>
+
+                <input
+                  type="number"
+                  min="0"
+                  value={form.edition_size ?? ""}
+                  onChange={(event) =>
+                    updateField(
+                      "edition_size",
+                      event.target.value ? Number(event.target.value) : null,
+                    )
+                  }
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <FieldLabel>Materials</FieldLabel>
+
+              <input
+                value={form.materials ?? ""}
+                onChange={(event) =>
+                  updateField("materials", event.target.value)
+                }
+                placeholder="e.g. Oil paint, linen canvas"
+                className={inputClass}
+              />
+            </div>
+
+            <div className="mt-6 divide-y divide-gray-100 border-y border-gray-100">
+              <CheckField
+                label="Hand signed"
+                checked={form.hand_signed}
+                onChange={(checked) => updateField("hand_signed", checked)}
+              />
+
+              <CheckField
+                label="Individually numbered"
+                checked={form.individually_numbered}
+                onChange={(checked) =>
+                  updateField("individually_numbered", checked)
+                }
+              />
+
+              <CheckField
+                label="Certificate of authenticity included"
+                checked={form.coa_included}
+                onChange={(checked) => updateField("coa_included", checked)}
+              />
+            </div>
+          </FormSection>
+
+          {/* Packaging */}
+          <FormSection
+            title="Packaging"
+            description="Record how the artwork will be packaged."
+            last
+          >
+            <FieldLabel>Packaging</FieldLabel>
+
+            <input
+              value={form.packaging ?? ""}
+              onChange={(event) => updateField("packaging", event.target.value)}
+              placeholder="e.g. Wooden crate"
+              className={inputClass}
+            />
+          </FormSection>
         </form>
 
-        <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
+        {/* Footer */}
+        <footer className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-8 py-4">
           <div>
             {artwork && (
               <button
                 type="button"
                 onClick={onDelete}
                 disabled={saving || deleting}
-                className="rounded-lg px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                className="px-2 py-2 text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
               >
-                {deleting ? "Deleting..." : "Delete"}
+                {deleting ? "Deleting..." : "Delete artwork"}
               </button>
             )}
           </div>
@@ -359,7 +492,7 @@ export default function ArtworkDrawer({
               type="button"
               onClick={onClose}
               disabled={saving || deleting}
-              className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium"
+              className="rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -368,7 +501,7 @@ export default function ArtworkDrawer({
               type="submit"
               form="artwork-form"
               disabled={saving || deleting}
-              className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium"
+              className="rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save"}
             </button>
@@ -377,13 +510,73 @@ export default function ArtworkDrawer({
               type="button"
               onClick={() => save(true)}
               disabled={saving || deleting}
-              className="rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-medium text-white"
+              className="rounded-md bg-gray-950 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save and Close"}
+              {saving ? "Saving..." : "Save and close"}
             </button>
           </div>
-        </div>
+        </footer>
       </div>
     </div>
+  );
+}
+
+const inputClass =
+  "mt-1.5 w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400";
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="block text-sm font-medium text-gray-700">
+      {children}
+    </label>
+  );
+}
+
+function FormSection({
+  title,
+  description,
+  children,
+  last = false,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  last?: boolean;
+}) {
+  return (
+    <section className={`px-8 py-7 ${last ? "" : "border-b border-gray-200"}`}>
+      <div className="mb-5">
+        <h3 className="text-sm font-medium text-gray-950">{title}</h3>
+
+        {description && (
+          <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
+        )}
+      </div>
+
+      {children}
+    </section>
+  );
+}
+
+function CheckField({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between py-4">
+      <span className="text-sm text-gray-700">{label}</span>
+
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 accent-gray-950"
+      />
+    </label>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import type { Artist, ArtistInput } from "@/types/artists";
 
 type ArtistDrawerProps = {
@@ -29,6 +29,7 @@ const emptyArtist: ArtistInput = {
   facebook_url: "",
   profile_image_url: "",
 };
+
 function getInitialForm(artist: Artist | null): ArtistInput {
   if (!artist) {
     return { ...emptyArtist };
@@ -78,36 +79,32 @@ export default function ArtistDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 flex justify-end">
+      {/* Dimmed application */}
       <button
         type="button"
         aria-label="Close artist drawer"
         onClick={onClose}
-        className="absolute inset-0 bg-black/20"
+        className="absolute inset-0 bg-black/25"
       />
 
-      <div className="absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-950">
-              {artist ? "Edit Artist" : "Add New Artist"}
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              {artist
-                ? "Update the artist information."
-                : "Add an artist to your gallery."}
-            </p>
-          </div>
+      {/* Drawer */}
+      <div className="relative flex h-full w-full max-w-[760px] flex-col bg-white shadow-xl">
+        {/* Header */}
+        <header className="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-5">
+          <h2 className="font-serif text-xl font-medium text-gray-950">
+            {artist ? "Edit artist" : "Add artist"}
+          </h2>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+            aria-label="Close artist drawer"
+            className="flex h-8 w-8 items-center justify-center text-gray-500 transition hover:bg-gray-100"
           >
-            <X size={18} />
+            <X size={17} />
           </button>
-        </div>
+        </header>
 
         <form
           id="artist-form"
@@ -115,157 +112,202 @@ export default function ArtistDrawer({
             event.preventDefault();
             await save(false);
           }}
-          className="flex-1 overflow-y-auto px-6 py-6"
+          className="flex-1 overflow-y-auto"
         >
-          <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="First Name"
-              required
-              value={form.first_name}
-              onChange={(value) => updateField("first_name", value)}
-            />
+          {/* Top section */}
+          <section className="grid grid-cols-[minmax(0,1fr)_210px] gap-8 border-b border-gray-200 px-6 py-6">
+            <div>
+              <h3 className="mb-5 font-serif text-base font-medium text-gray-950">
+                Details
+              </h3>
 
-            <Field
-              label="Last Name"
-              required
-              value={form.last_name}
-              onChange={(value) => updateField("last_name", value)}
-            />
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                <Field
+                  label="First name"
+                  required
+                  value={form.first_name}
+                  onChange={(value) => updateField("first_name", value)}
+                />
 
-            <Field
-              label="Artist Type"
-              value={form.artist_type ?? ""}
-              onChange={(value) => updateField("artist_type", value)}
-            />
+                <Field
+                  label="Last name"
+                  required
+                  value={form.last_name}
+                  onChange={(value) => updateField("last_name", value)}
+                />
 
-            <Field
-              label="Nationality"
-              value={form.nationality ?? ""}
-              onChange={(value) => updateField("nationality", value)}
-            />
+                <div className="col-span-1">
+                  <Field
+                    label="Artist type"
+                    value={form.artist_type ?? ""}
+                    placeholder="e.g. Art Collector"
+                    onChange={(value) => updateField("artist_type", value)}
+                  />
+                </div>
+              </div>
 
-            <Field
-              label="Birth Date"
-              type="date"
-              value={form.birth_date ?? ""}
-              onChange={(value) => updateField("birth_date", value)}
-            />
+              <div className="mt-8">
+                <h3 className="font-serif text-base font-medium text-gray-950">
+                  Dates & nationality
+                </h3>
+                <p className="mt-1 text-xs text-gray-400">
+                  This information is optional.
+                </p>
 
-            <Field
-              label="Death Date"
-              type="date"
-              value={form.death_date ?? ""}
-              onChange={(value) => updateField("death_date", value)}
-            />
-          </div>
+                <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
+                  <Field
+                    label="Year/Date of birth"
+                    type="date"
+                    value={form.birth_date ?? ""}
+                    onChange={(value) => updateField("birth_date", value)}
+                  />
 
-          <div className="mt-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Biography
-            </label>
+                  <Field
+                    label="Year/Date of death"
+                    type="date"
+                    value={form.death_date ?? ""}
+                    onChange={(value) => updateField("death_date", value)}
+                  />
 
-            <textarea
-              rows={5}
-              maxLength={3000}
-              value={form.biography ?? ""}
-              onChange={(event) => updateField("biography", event.target.value)}
-              className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
-            />
+                  <Field
+                    label="Nationality"
+                    value={form.nationality ?? ""}
+                    placeholder="Select or enter nationality"
+                    onChange={(value) => updateField("nationality", value)}
+                  />
+                </div>
+              </div>
+            </div>
 
-            <p className="mt-1 text-right text-xs text-gray-400">
-              {(form.biography ?? "").length}/3000
-            </p>
-          </div>
+            {/* Profile image */}
+            <div>
+              <div className="flex aspect-[4/5] w-full items-center justify-center border border-dashed border-gray-200 bg-gray-50">
+                <Plus size={28} strokeWidth={1.2} className="text-gray-500" />
+              </div>
 
-          <div className="mt-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+              <p className="mt-3 text-center text-xs leading-5 text-gray-400">
+                Add profile image of Artist
+              </p>
+
+              <label className="mt-4 block">
+                <span className="sr-only">Profile image URL</span>
+
+                <input
+                  type="url"
+                  value={form.profile_image_url ?? ""}
+                  onChange={(event) =>
+                    updateField("profile_image_url", event.target.value)
+                  }
+                  placeholder="Image URL"
+                  className={inputClass}
+                />
+              </label>
+            </div>
+          </section>
+
+          {/* Bibliography */}
+          <section className="border-b border-gray-200 px-6 py-6">
+            <h3 className="mb-5 font-serif text-base font-medium text-gray-950">
               Bibliography
-            </label>
+            </h3>
 
-            <textarea
-              rows={4}
-              maxLength={5000}
-              value={form.bibliography ?? ""}
-              onChange={(event) =>
-                updateField("bibliography", event.target.value)
-              }
-              className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
-            />
+            <div>
+              <FieldLabel>Full biography</FieldLabel>
 
-            <p className="mt-1 text-right text-xs text-gray-400">
-              {(form.bibliography ?? "").length}/5000
-            </p>
-          </div>
+              <textarea
+                rows={4}
+                maxLength={3000}
+                value={form.biography ?? ""}
+                onChange={(event) =>
+                  updateField("biography", event.target.value)
+                }
+                placeholder="Add full biography"
+                className={`${inputClass} resize-none`}
+              />
 
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <Field
-              label="Website"
-              type="url"
-              value={form.website_url ?? ""}
-              onChange={(value) => updateField("website_url", value)}
-            />
+              <p className="mt-1 text-right text-[11px] text-gray-400">
+                {(form.biography ?? "").length}/3000
+              </p>
+            </div>
 
-            <Field
-              label="CV / Document URL"
-              type="url"
-              value={form.cv_url ?? ""}
-              onChange={(value) => updateField("cv_url", value)}
-            />
+            <div className="mt-4">
+              <FieldLabel>Bibliography</FieldLabel>
 
-            <Field
-              label="Instagram"
-              type="url"
-              value={form.instagram_url ?? ""}
-              onChange={(value) => updateField("instagram_url", value)}
-            />
+              <textarea
+                rows={3}
+                maxLength={5000}
+                value={form.bibliography ?? ""}
+                onChange={(event) =>
+                  updateField("bibliography", event.target.value)
+                }
+                placeholder="Add bibliography"
+                className={`${inputClass} resize-none`}
+              />
 
-            <Field
-              label="Facebook"
-              type="url"
-              value={form.facebook_url ?? ""}
-              onChange={(value) => updateField("facebook_url", value)}
-            />
+              <p className="mt-1 text-right text-[11px] text-gray-400">
+                {(form.bibliography ?? "").length}/5000
+              </p>
+            </div>
+          </section>
 
-            <div className="col-span-2">
+          {/* Documents and links */}
+          <section className="px-6 py-6">
+            <h3 className="mb-5 font-serif text-base font-medium text-gray-950">
+              Documents & links
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
               <Field
-                label="Profile Image URL"
+                label="Artist Website"
                 type="url"
-                value={form.profile_image_url ?? ""}
-                onChange={(value) => updateField("profile_image_url", value)}
+                value={form.website_url ?? ""}
+                placeholder="https://..."
+                onChange={(value) => updateField("website_url", value)}
+              />
+
+              <Field
+                label="CV / Document"
+                type="url"
+                value={form.cv_url ?? ""}
+                placeholder="Document URL"
+                onChange={(value) => updateField("cv_url", value)}
               />
             </div>
-          </div>
+
+            <div className="mt-5">
+              <FieldLabel>Socials</FieldLabel>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field
+                  label="Instagram"
+                  hideLabel
+                  type="url"
+                  value={form.instagram_url ?? ""}
+                  placeholder="Instagram URL"
+                  onChange={(value) => updateField("instagram_url", value)}
+                />
+
+                <Field
+                  label="Facebook"
+                  hideLabel
+                  type="url"
+                  value={form.facebook_url ?? ""}
+                  placeholder="Facebook URL"
+                  onChange={(value) => updateField("facebook_url", value)}
+                />
+              </div>
+            </div>
+          </section>
         </form>
 
-        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
-          <div>
-            {artist && (
-              <button
-                type="button"
-                disabled={saving || deleting}
-                onClick={onDelete}
-                className="rounded-lg px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
-              >
-                {deleting ? "Deleting..." : "Delete"}
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={saving || deleting}
-              className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700"
-            >
-              Cancel
-            </button>
-
+        {/* Footer */}
+        <footer className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+          <div className="flex items-center gap-5">
             <button
               type="submit"
               form="artist-form"
               disabled={saving || deleting}
-              className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-900 disabled:opacity-50"
+              className="text-xs font-medium text-gray-950 hover:text-gray-600 disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save"}
             </button>
@@ -274,14 +316,47 @@ export default function ArtistDrawer({
               type="button"
               disabled={saving || deleting}
               onClick={() => save(true)}
-              className="rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="text-xs font-medium text-gray-950 hover:text-gray-600 disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save and Close"}
             </button>
           </div>
-        </div>
+
+          <div className="flex items-center gap-5">
+            {artist && (
+              <button
+                type="button"
+                disabled={saving || deleting}
+                onClick={onDelete}
+                className="text-xs font-medium text-red-500 hover:text-red-700 disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving || deleting}
+              className="text-xs font-medium text-gray-500 hover:text-gray-950 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
+  );
+}
+
+const inputClass =
+  "mt-1.5 w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400";
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="block text-xs font-medium text-gray-700">
+      {children}
+    </label>
   );
 }
 
@@ -290,6 +365,8 @@ type FieldProps = {
   value: string;
   type?: string;
   required?: boolean;
+  placeholder?: string;
+  hideLabel?: boolean;
   onChange: (value: string) => void;
 };
 
@@ -298,11 +375,17 @@ function Field({
   value,
   type = "text",
   required = false,
+  placeholder,
+  hideLabel = false,
   onChange,
 }: FieldProps) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-gray-700">
+      <span
+        className={
+          hideLabel ? "sr-only" : "block text-xs font-medium text-gray-700"
+        }
+      >
         {label}
       </span>
 
@@ -310,8 +393,9 @@ function Field({
         type={type}
         required={required}
         value={value}
+        placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
+        className={inputClass}
       />
     </label>
   );

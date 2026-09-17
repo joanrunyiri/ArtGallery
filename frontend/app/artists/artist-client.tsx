@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import type { Artist, ArtistInput } from "@/types/artists";
-
 import ArtistDrawer from "./artist-drawer";
 import { createArtist, deleteArtist, updateArtist } from "@/lib/api";
 
@@ -72,6 +71,7 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
       setSaving(false);
     }
   }
+
   async function handleDelete() {
     if (!selectedArtist) {
       return;
@@ -103,13 +103,13 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
       setDeleting(false);
     }
   }
+
   return (
     <div className="mx-auto max-w-[1600px]">
+      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-950">
-            Artists
-          </h1>
+          <h1 className="text-3xl font-medium text-gray-950">Artists</h1>
 
           <p className="mt-1 text-sm text-gray-500">
             Manage artists represented by your gallery.
@@ -118,20 +118,29 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
 
         <button
           type="button"
-          className="flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-medium text-white"
           onClick={() => {
             setSelectedArtist(null);
+            setError("");
             setDrawerOpen(true);
           }}
+          className="flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
         >
           <Plus size={16} />
           Add New Artist
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 p-4">
-          <div className="relative max-w-sm">
+      {/* Error */}
+      {error && (
+        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* Artist list */}
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+          <div className="relative w-full max-w-md">
             <Search
               size={16}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -142,81 +151,102 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search artists"
-              className="w-full rounded-lg border border-gray-200 py-2.5 pl-9 pr-3 text-sm outline-none"
+              className="w-full rounded-full border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-gray-400"
             />
           </div>
+
+          <p className="ml-6 hidden text-xs text-gray-400 sm:block">
+            {filteredArtists.length}{" "}
+            {filteredArtists.length === 1 ? "artist" : "artists"}
+          </p>
         </div>
-        
-        <table className="w-full text-left">
-          <thead className="border-b border-gray-200 bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">
-                Artist
-              </th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">
-                Type
-              </th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">
-                Nationality
-              </th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">
-                Website
-              </th>
-            </tr>
-          </thead>
-          {error && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
 
-          <tbody className="divide-y divide-gray-100">
-            {filteredArtists.map((artist) => (
-              <tr
-                key={artist.id}
-                className="cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  setSelectedArtist(artist);
-                  setDrawerOpen(true);
-                }}
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600">
-                      {artist.first_name.charAt(0)}
-                      {artist.last_name.charAt(0)}
-                    </div>
+        {filteredArtists.length === 0 ? (
+          <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
+            <p className="text-sm font-medium text-gray-950">
+              No artists found
+            </p>
 
-                    <div>
-                      <p className="text-sm font-medium text-gray-950">
-                        {artist.first_name} {artist.last_name}
-                      </p>
+            <p className="mt-1 text-sm text-gray-500">
+              {search
+                ? "Try another search."
+                : "Add an artist to start building your roster."}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left">
+              <thead className="border-b border-gray-200 bg-gray-50/70">
+                <tr>
+                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Artist
+                  </th>
 
-                      <p className="text-xs text-gray-400">
-                        Artist #{artist.id}
-                      </p>
-                    </div>
-                  </div>
-                </td>
+                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Type
+                  </th>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {artist.artist_type || "—"}
-                </td>
+                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Nationality
+                  </th>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {artist.nationality || "—"}
-                </td>
+                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Website
+                  </th>
+                </tr>
+              </thead>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {artist.website_url || "—"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        
+              <tbody className="divide-y divide-gray-100">
+                {filteredArtists.map((artist) => (
+                  <tr
+                    key={artist.id}
+                    onClick={() => {
+                      setSelectedArtist(artist);
+                      setError("");
+                      setDrawerOpen(true);
+                    }}
+                    className="cursor-pointer transition hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium uppercase text-gray-600">
+                          {artist.first_name.charAt(0)}
+                          {artist.last_name.charAt(0)}
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium text-gray-950">
+                            {artist.first_name} {artist.last_name}
+                          </p>
+
+                          <p className="mt-0.5 text-xs text-gray-400">
+                            Artist #{artist.id}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5 text-sm text-gray-600">
+                      {artist.artist_type || "—"}
+                    </td>
+
+                    <td className="px-6 py-5 text-sm text-gray-600">
+                      {artist.nationality || "—"}
+                    </td>
+
+                    <td className="max-w-[240px] truncate px-6 py-5 text-sm text-gray-500">
+                      {artist.website_url || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
       <ArtistDrawer
+        key={selectedArtist?.id ?? "new"}
         open={drawerOpen}
         artist={selectedArtist}
         saving={saving}
@@ -224,6 +254,7 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
         onClose={() => {
           setDrawerOpen(false);
           setSelectedArtist(null);
+          setError("");
         }}
         onSave={handleSave}
         onDelete={handleDelete}
