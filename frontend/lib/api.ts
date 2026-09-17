@@ -1,5 +1,5 @@
 import type { DashboardData } from "@/types/dashboard";
-import type { Artwork } from "@/types/artworks";
+import type { Artwork, ArtworkInput } from "@/types/artworks";
 import type { Artist, ArtistInput } from "@/types/artists";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -34,6 +34,28 @@ export function getDashboard(): Promise<DashboardData> {
 export function getArtworks(): Promise<Artwork[]> {
   return request<Artwork[]>("/api/artworks");
 }
+export function createArtwork(data: ArtworkInput): Promise<Artwork> {
+  return request<Artwork>("/api/artworks", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateArtwork(
+  id: number,
+  data: ArtworkInput
+): Promise<Artwork> {
+  return request<Artwork>(`/api/artworks/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteArtwork(id: number): Promise<void> {
+  return request<void>(`/api/artworks/${id}`, {
+    method: "DELETE",
+  });
+}
 
 export function getArtists(): Promise<Artist[]> {
   return request<Artist[]>("/api/artists");
@@ -61,3 +83,4 @@ export function deleteArtist(id: number): Promise<void> {
     method: "DELETE",
   });
 }
+

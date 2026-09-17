@@ -22,3 +22,25 @@ export type Artwork = {
   created_at: string;
   updated_at: string;
 };
+
+export type ArtworkInput = {
+  artist_id?: number | null;
+  title: string;
+  pricing_type: string;
+  price?: number | null;
+  description?: string;
+  height?: number | null;
+  width?: number | null;
+  depth?: number | null;
+  dimension_unit?: string;
+  framing?: string;
+  medium?: string;
+  release_date?: string;
+  edition_size?: number | null;
+  materials?: string;
+  hand_signed: boolean;
+  individually_numbered: boolean;
+  coa_included: boolean;
+  packaging?: string;
+  image_url?: string;
+};

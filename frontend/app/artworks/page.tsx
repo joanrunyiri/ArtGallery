@@ -1,9 +1,16 @@
-export default function Artworks() {
+import ArtworksClient from "./artworks-client";
+import { getArtists, getArtworks } from "@/lib/api";
+
+export default async function Artworks() {
+  const [artworks, artists] = await Promise.all([
+    getArtworks(),
+    getArtists(),
+  ]);
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-gray-950">
-        Artworks
-      </h1>
-    </div>
+    <ArtworksClient
+      initialArtworks={artworks}
+      artists={artists}
+    />
   );
 }
