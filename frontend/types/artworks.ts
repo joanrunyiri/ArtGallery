@@ -1,0 +1,24 @@
+export type Artwork = {
+  id: number;
+  artist_id: number | null;
+  title: string;
+  pricing_type: string;
+  price: number | null;
+  description: string | null;
+  height: number | null;
+  width: number | null;
+  depth: number | null;
+  dimension_unit: string | null;
+  framing: string | null;
+  medium: string | null;
+  release_date: string | null;
+  edition_size: number | null;
+  materials: string | null;
+  hand_signed: boolean;
+  individually_numbered: boolean;
+  coa_included: boolean;
+  packaging: string | null;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+};
