@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import type { Artist, ArtistInput } from "@/types/artists";
 
@@ -29,6 +29,27 @@ const emptyArtist: ArtistInput = {
   facebook_url: "",
   profile_image_url: "",
 };
+function getInitialForm(artist: Artist | null): ArtistInput {
+  if (!artist) {
+    return { ...emptyArtist };
+  }
+
+  return {
+    first_name: artist.first_name,
+    last_name: artist.last_name,
+    artist_type: artist.artist_type ?? "",
+    birth_date: artist.birth_date ?? "",
+    death_date: artist.death_date ?? "",
+    nationality: artist.nationality ?? "",
+    biography: artist.biography ?? "",
+    bibliography: artist.bibliography ?? "",
+    website_url: artist.website_url ?? "",
+    cv_url: artist.cv_url ?? "",
+    instagram_url: artist.instagram_url ?? "",
+    facebook_url: artist.facebook_url ?? "",
+    profile_image_url: artist.profile_image_url ?? "",
+  };
+}
 
 export default function ArtistDrawer({
   open,
@@ -39,29 +60,7 @@ export default function ArtistDrawer({
   onSave,
   onDelete,
 }: ArtistDrawerProps) {
-  const [form, setForm] = useState<ArtistInput>(emptyArtist);
-
-  useEffect(() => {
-    if (artist) {
-      setForm({
-        first_name: artist.first_name,
-        last_name: artist.last_name,
-        artist_type: artist.artist_type ?? "",
-        birth_date: artist.birth_date ?? "",
-        death_date: artist.death_date ?? "",
-        nationality: artist.nationality ?? "",
-        biography: artist.biography ?? "",
-        bibliography: artist.bibliography ?? "",
-        website_url: artist.website_url ?? "",
-        cv_url: artist.cv_url ?? "",
-        instagram_url: artist.instagram_url ?? "",
-        facebook_url: artist.facebook_url ?? "",
-        profile_image_url: artist.profile_image_url ?? "",
-      });
-    } else {
-      setForm(emptyArtist);
-    }
-  }, [artist, open]);
+  const [form, setForm] = useState<ArtistInput>(() => getInitialForm(artist));
 
   if (!open) {
     return null;

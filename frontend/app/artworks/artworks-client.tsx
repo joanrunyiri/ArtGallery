@@ -6,6 +6,7 @@ import type { Artist } from "@/types/artists";
 import type { Artwork, ArtworkInput } from "@/types/artworks";
 import { createArtwork, updateArtwork, deleteArtwork } from "@/lib/api";
 import ArtworkDrawer from "./artwork-drawer";
+import ExhibitionLabel from "./exhibition-label";
 type ArtworksClientProps = {
   initialArtworks: Artwork[];
   artists: Artist[];
@@ -23,6 +24,7 @@ export default function ArtworksClient({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [labelArtwork, setLabelArtwork] = useState<Artwork | null>(null);
 
   const filteredArtworks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -189,60 +191,75 @@ export default function ArtworksClient({
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {filteredArtworks.map((artwork) => (
-            <button
+            <div
               key={artwork.id}
-              type="button"
-              className="overflow-hidden rounded-2xl border border-gray-200 bg-white text-left transition hover:shadow-sm"
-              onClick={() => {
-                setSelectedArtwork(artwork);
-                setError("");
-                setDrawerOpen(true);
-              }}
+              className="overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:shadow-sm"
             >
-              <div className="flex aspect-[4/3] items-center justify-center bg-gray-100">
-                <ImageIcon
-                  size={28}
-                  strokeWidth={1.5}
-                  className="text-gray-400"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedArtwork(artwork);
+                  setError("");
+                  setDrawerOpen(true);
+                }}
+                className="block w-full text-left"
+              >
+                <div className="flex aspect-[4/3] items-center justify-center bg-gray-100">
+                  <ImageIcon
+                    size={28}
+                    strokeWidth={1.5}
+                    className="text-gray-400"
+                  />
+                </div>
 
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <h2 className="truncate text-sm font-semibold text-gray-950">
-                      {artwork.title}
-                    </h2>
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h2 className="truncate text-sm font-semibold text-gray-950">
+                        {artwork.title}
+                      </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getArtistName(artwork.artist_id)}
-                    </p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {getArtistName(artwork.artist_id)}
+                      </p>
+                    </div>
+
+                    {artwork.price != null && (
+                      <p className="shrink-0 text-sm font-medium text-gray-950">
+                        ${artwork.price.toLocaleString()}
+                      </p>
+                    )}
                   </div>
 
-                  {artwork.price != null && (
-                    <p className="shrink-0 text-sm font-medium text-gray-950">
-                      ${artwork.price.toLocaleString()}
-                    </p>
-                  )}
-                </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    {artwork.medium && (
+                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+                        {artwork.medium}
+                      </span>
+                    )}
 
-                <div className="mt-4 flex items-center gap-2">
-                  {artwork.medium && (
                     <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-                      {artwork.medium}
+                      {artwork.pricing_type}
                     </span>
-                  )}
-
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-                    {artwork.pricing_type}
-                  </span>
+                  </div>
                 </div>
+              </button>
+
+              <div className="border-t border-gray-100 px-5 py-3">
+                <button
+                  type="button"
+                  onClick={() => setLabelArtwork(artwork)}
+                  className="text-sm font-medium text-gray-700 hover:text-gray-950"
+                >
+                  Exhibition Label
+                </button>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}
       <ArtworkDrawer
+        key={selectedArtist?.id ?? "new"}
         open={drawerOpen}
         artwork={selectedArtwork}
         artists={artists}
@@ -256,6 +273,16 @@ export default function ArtworksClient({
         onSave={handleSave}
         onDelete={handleDelete}
       />
+      {labelArtwork && (
+        <ExhibitionLabel
+          artwork={labelArtwork}
+          artist={
+            artists.find((artist) => artist.id === labelArtwork.artist_id) ??
+            null
+          }
+          onClose={() => setLabelArtwork(null)}
+        />
+      )}
     </div>
   );
 }

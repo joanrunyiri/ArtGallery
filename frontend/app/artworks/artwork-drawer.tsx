@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import type { Artist } from "@/types/artist";
 import type { Artwork, ArtworkInput } from "@/types/artwork";
@@ -37,6 +37,33 @@ const emptyArtwork: ArtworkInput = {
   packaging: "",
   image_url: "",
 };
+function getInitialForm(artwork: Artwork | null): ArtworkInput {
+  if (!artwork) {
+    return { ...emptyArtwork };
+  }
+
+  return {
+    artist_id: artwork.artist_id,
+    title: artwork.title,
+    pricing_type: artwork.pricing_type,
+    price: artwork.price,
+    description: artwork.description ?? "",
+    height: artwork.height,
+    width: artwork.width,
+    depth: artwork.depth,
+    dimension_unit: artwork.dimension_unit ?? "cm",
+    framing: artwork.framing ?? "",
+    medium: artwork.medium ?? "",
+    release_date: artwork.release_date ?? "",
+    edition_size: artwork.edition_size,
+    materials: artwork.materials ?? "",
+    hand_signed: artwork.hand_signed,
+    individually_numbered: artwork.individually_numbered,
+    coa_included: artwork.coa_included,
+    packaging: artwork.packaging ?? "",
+    image_url: artwork.image_url ?? "",
+  };
+}
 
 export default function ArtworkDrawer({
   open,
@@ -48,38 +75,7 @@ export default function ArtworkDrawer({
   onSave,
   onDelete,
 }: ArtworkDrawerProps) {
-  const [form, setForm] = useState<ArtworkInput>(emptyArtwork);
-
-  useEffect(() => {
-    if (!open) return;
-
-    if (!artwork) {
-      setForm(emptyArtwork);
-      return;
-    }
-
-    setForm({
-      artist_id: artwork.artist_id,
-      title: artwork.title,
-      pricing_type: artwork.pricing_type,
-      price: artwork.price,
-      description: artwork.description ?? "",
-      height: artwork.height,
-      width: artwork.width,
-      depth: artwork.depth,
-      dimension_unit: artwork.dimension_unit ?? "cm",
-      framing: artwork.framing ?? "",
-      medium: artwork.medium ?? "",
-      release_date: artwork.release_date ?? "",
-      edition_size: artwork.edition_size,
-      materials: artwork.materials ?? "",
-      hand_signed: artwork.hand_signed,
-      individually_numbered: artwork.individually_numbered,
-      coa_included: artwork.coa_included,
-      packaging: artwork.packaging ?? "",
-      image_url: artwork.image_url ?? "",
-    });
-  }, [artwork, open]);
+  const [form, setForm] = useState<ArtworkInput>(() => getInitialForm(artwork));
 
   function updateField<K extends keyof ArtworkInput>(
     field: K,
