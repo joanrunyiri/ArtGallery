@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ImageIcon, Plus, Search } from "lucide-react";
+import { ImageIcon, Plus } from "lucide-react";
 import type { Artist } from "@/types/artists";
 import type { Artwork, ArtworkInput } from "@/types/artworks";
 import { createArtwork, updateArtwork, deleteArtwork } from "@/lib/api";
@@ -161,12 +161,11 @@ export default function ArtworksClient({
   }
 
   return (
-    <div className="mx-auto max-w-[1600px]">
+    <div className="mx-auto max-w-[1156px]">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-medium text-gray-950">Artworks</h1>
-
+          <h1 className="page-title">Artworks</h1>
           <p className="mt-1 text-sm text-gray-500">
             Browse, organize and manage artworks in your collection.
           </p>
@@ -179,19 +178,22 @@ export default function ArtworksClient({
             setError("");
             setDrawerOpen(true);
           }}
-          className="flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-medium text-white"
+          className="flex h-12 w-[155px] items-center justify-center gap-1.5 rounded-md bg-gray-950 px-3 py-2.5 text-sm font-medium text-white"
         >
           <Plus size={16} />
           Add Artwork
         </button>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+      {/* Search and filter */}
+      <div className="mb-8 flex items-center gap-3">
+        <div className="relative h-[41px] w-[295px]">
+          <Image
+            src="/icons/search.svg"
+            alt=""
+            width={14}
+            height={14}
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2"
           />
 
           <input
@@ -199,9 +201,23 @@ export default function ArtworksClient({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search artworks"
-            className="w-full rounded-full border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-gray-400"
+            className="h-full w-full rounded-lg border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-gray-400"
           />
         </div>
+
+        <button
+          type="button"
+          className="flex h-[41px] w-[115px] items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 text-sm font-medium text-gray-700"
+        >
+          <Image
+            src="/icons/filter-icon.svg"
+            alt=""
+            width={14}
+            height={14}
+            style={{ width: 14, height: "auto" }}
+          />{" "}
+          <span className="whitespace-nowrap">Sort & Filter</span>
+        </button>
       </div>
 
       {/* Error */}
@@ -227,12 +243,10 @@ export default function ArtworksClient({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {" "}
           {filteredArtworks.map((artwork) => (
-            <div
-              key={artwork.id}
-              className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md"
-            >
+            <div key={artwork.id} className="group w-[270px]">
               <button
                 type="button"
                 onClick={() => {
@@ -242,13 +256,17 @@ export default function ArtworksClient({
                 className="block w-full text-left"
               >
                 {/* Artwork image placeholder */}
-                <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                <div
+                  className="relative overflow-hidden rounded-md bg-gray-100"
+                  style={{ width: 270, height: 279 }}
+                >
+                  {" "}
                   {artwork.image_url ? (
                     <Image
                       src={artwork.image_url}
                       alt={artwork.title}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      sizes="270px"
                       className="object-cover"
                     />
                   ) : (
@@ -262,22 +280,22 @@ export default function ArtworksClient({
                   )}
                 </div>
 
-                <div className="p-5">
-                  <h2 className="text-base font-medium text-gray-950">
+                <div className="mt-4">
+                  <h2 className="font-[var(--font-playfair)] text-[18px] font-medium leading-none tracking-[-0.01em] text-gray-950">
                     {artwork.title}
                   </h2>
 
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-2 text-base font-medium leading-[22px] text-gray-500">
                     {getArtistName(artwork.artist_id)}
                   </p>
 
                   <div className="mt-4 flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wide text-gray-400">
+                    {/* <span className="text-xs uppercase tracking-wide text-gray-400">
                       {artwork.medium || "Artwork"}
-                    </span>
+                    </span> */}
 
                     {artwork.price != null && (
-                      <span className="text-sm font-medium text-gray-950">
+                      <span className="text-[18px] font-bold leading-none tracking-[-0.02em] text-gray-950">
                         ${artwork.price.toLocaleString()}
                       </span>
                     )}

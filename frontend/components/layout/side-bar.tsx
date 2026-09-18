@@ -2,33 +2,36 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  Image,
-  Users,
-  
-} from "lucide-react";
+import { LayoutDashboard, Image, Users } from "lucide-react";
+import NextImage from "next/image";
+import type { LucideIcon } from "lucide-react";
 
-const navigation = [
+type NavigationItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  disabled?: boolean;
+};
+
+
+const navigation: NavigationItem[] = [
   {
     name: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
   },
- 
+
   {
     name: "Artworks",
     href: "/artworks",
     icon: Image,
   },
- 
+
   {
     name: "Artists",
     href: "/artists",
     icon: Users,
   },
-
 ];
 
 export default function Sidebar() {
@@ -37,9 +40,13 @@ export default function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-gray-200 bg-white">
       <div className="flex h-20 items-center px-6">
-        <span className="text-xl font-semibold tracking-tight text-gray-950">
-          Art Circles
-        </span>
+        <NextImage
+          src="/logo.svg"
+          alt="Art Circles"
+          width={120}
+          height={32}
+          className="w-[120px] h-auto"
+        />
       </div>
 
       <nav className="flex-1 px-3 py-4">
@@ -77,8 +84,6 @@ export default function Sidebar() {
           })}
         </div>
       </nav>
-
-      
     </aside>
   );
 }

@@ -110,7 +110,7 @@ export default function ArtworkDetailsDrawer({
               <button
                 type="button"
                 onClick={onEditLabel}
-                className="text-sm text-gray-500 hover:text-gray-950"
+                className="btn btn-primary"
               >
                 Edit
               </button>
@@ -196,11 +196,7 @@ export default function ArtworkDetailsDrawer({
 
         {/* Footer */}
         <footer className="flex items-center justify-between border-t border-gray-200 bg-white px-7 py-4">
-          <button
-            type="button"
-            onClick={onDelete}
-            className="text-sm text-red-600 hover:text-red-700"
-          >
+          <button type="button" onClick={onDelete} className="btn btn-danger">
             Delete
           </button>
 

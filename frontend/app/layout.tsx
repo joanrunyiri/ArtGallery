@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Figtree, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/layout/app-shell";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
@@ -22,8 +22,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    ><body className={`${geistSans.variable} ${geistMono.variable}`}>
+      className={`${figtree.variable} ${playfair.variable} h-full antialiased`}
+    ><body className={`${figtree.variable} ${playfair.variable} antialiased`}>
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -307,7 +307,7 @@ export default function ArtistDrawer({
               type="submit"
               form="artist-form"
               disabled={saving || deleting}
-              className="text-xs font-medium text-gray-950 hover:text-gray-600 disabled:opacity-50"
+              className="btn btn-primary"
             >
               {saving ? "Saving..." : "Save"}
             </button>
@@ -316,7 +316,7 @@ export default function ArtistDrawer({
               type="button"
               disabled={saving || deleting}
               onClick={() => save(true)}
-              className="text-xs font-medium text-gray-950 hover:text-gray-600 disabled:opacity-50"
+              className="btn btn-primary"
             >
               {saving ? "Saving..." : "Save and Close"}
             </button>
@@ -328,7 +328,7 @@ export default function ArtistDrawer({
                 type="button"
                 disabled={saving || deleting}
                 onClick={onDelete}
-                className="text-xs font-medium text-red-500 hover:text-red-700 disabled:opacity-50"
+                className="btn btn-danger"
               >
                 {deleting ? "Deleting..." : "Delete"}
               </button>

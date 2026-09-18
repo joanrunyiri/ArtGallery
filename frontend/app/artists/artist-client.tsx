@@ -105,13 +105,13 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   }
 
   return (
-    <div className="mx-auto max-w-[1600px]">
+    <div className="mx-auto max-w-[1168px]">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-medium text-gray-950">Artists</h1>
+          <h1 className="page-title">Artists</h1>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-[#64748B]">
             Manage artists represented by your gallery.
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
             setError("");
             setDrawerOpen(true);
           }}
-          className="flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+          className="btn btn-primary"
         >
           <Plus size={16} />
           Add New Artist
@@ -137,37 +137,38 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
         </div>
       )}
 
-      {/* Artist list */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-          <div className="relative w-full max-w-md">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+      {/* Search */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="relative h-[41px] w-[295px]">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[#9DA4AE]"
+          />
 
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search artists"
-              className="w-full rounded-full border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-gray-400"
-            />
-          </div>
-
-          <p className="ml-6 hidden text-xs text-gray-400 sm:block">
-            {filteredArtists.length}{" "}
-            {filteredArtists.length === 1 ? "artist" : "artists"}
-          </p>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search artists"
+            className="h-full w-full rounded-lg border border-[#E2E8F0] bg-white pl-9 pr-4 text-sm text-[#111111] outline-none placeholder:text-[#9DA4AE] focus:border-gray-400"
+          />
         </div>
 
+        <p className="text-sm text-[#64748B]">
+          {filteredArtists.length}{" "}
+          {filteredArtists.length === 1 ? "artist" : "artists"}
+        </p>
+      </div>
+
+      {/* Artist list */}
+      <div className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-white">
         {filteredArtists.length === 0 ? (
           <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
-            <p className="text-sm font-medium text-gray-950">
+            <p className="text-sm font-medium text-[#111111]">
               No artists found
             </p>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-[#64748B]">
               {search
                 ? "Try another search."
                 : "Add an artist to start building your roster."}
@@ -175,28 +176,28 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left">
-              <thead className="border-b border-gray-200 bg-gray-50/70">
-                <tr>
-                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+            <table className="w-full min-w-[720px] table-fixed text-left">
+              <thead className="border-b border-[#E2E8F0] bg-[#F9FAFB]">
+                <tr className="h-[50px]">
+                  <th className="w-[34%] px-4 text-sm font-medium text-[#475569]">
                     Artist
                   </th>
 
-                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                  <th className="w-[20%] px-4 text-sm font-medium text-[#475569]">
                     Type
                   </th>
 
-                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                  <th className="w-[22%] px-4 text-sm font-medium text-[#475569]">
                     Nationality
                   </th>
 
-                  <th className="px-6 py-3.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                  <th className="w-[24%] px-4 text-sm font-medium text-[#475569]">
                     Website
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#F1F5F9]">
                 {filteredArtists.map((artist) => (
                   <tr
                     key={artist.id}
@@ -205,36 +206,36 @@ export default function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                       setError("");
                       setDrawerOpen(true);
                     }}
-                    className="cursor-pointer transition hover:bg-gray-50"
+                    className="h-[64px] cursor-pointer bg-white transition hover:bg-[#F9FAFB]"
                   >
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium uppercase text-gray-600">
+                    <td className="px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#F1F5F9] text-xs font-medium uppercase text-[#475569]">
                           {artist.first_name.charAt(0)}
                           {artist.last_name.charAt(0)}
                         </div>
 
-                        <div>
-                          <p className="text-sm font-medium text-gray-950">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-[#111111]">
                             {artist.first_name} {artist.last_name}
                           </p>
 
-                          <p className="mt-0.5 text-xs text-gray-400">
+                          <p className="mt-0.5 text-xs text-[#9DA4AE]">
                             Artist #{artist.id}
                           </p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-6 py-5 text-sm text-gray-600">
+                    <td className="px-4 text-sm text-[#475569]">
                       {artist.artist_type || "—"}
                     </td>
 
-                    <td className="px-6 py-5 text-sm text-gray-600">
+                    <td className="px-4 text-sm text-[#475569]">
                       {artist.nationality || "—"}
                     </td>
 
-                    <td className="max-w-[240px] truncate px-6 py-5 text-sm text-gray-500">
+                    <td className="truncate px-4 text-sm text-[#475569]">
                       {artist.website_url || "—"}
                     </td>
                   </tr>
