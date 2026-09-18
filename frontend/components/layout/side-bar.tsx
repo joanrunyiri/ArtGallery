@@ -16,12 +16,7 @@ const navigation = [
     href: "/",
     icon: LayoutDashboard,
   },
-  {
-    name: "Event",
-    href: "#",
-    icon: CalendarDays,
-    disabled: true,
-  },
+ 
   {
     name: "Artworks",
     href: "/artworks",
@@ -83,22 +78,7 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      <div className="border-t border-gray-100 p-4">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-xs font-medium text-white">
-            JR
-          </div>
-
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-gray-900">
-              Gallery Admin
-            </p>
-            <p className="truncate text-xs text-gray-500">
-              Administrator
-            </p>
-          </div>
-        </div>
-      </div>
+      
     </aside>
   );
 }

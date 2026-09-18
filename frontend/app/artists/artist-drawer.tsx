@@ -92,7 +92,7 @@ export default function ArtistDrawer({
       <div className="relative flex h-full w-full max-w-[760px] flex-col bg-white shadow-xl">
         {/* Header */}
         <header className="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-5">
-          <h2 className="font-serif text-xl font-medium text-gray-950">
+          <h2 className="text-xl font-medium text-gray-950">
             {artist ? "Edit artist" : "Add artist"}
           </h2>
 

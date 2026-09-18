@@ -8,6 +8,7 @@ import { createArtwork, updateArtwork, deleteArtwork } from "@/lib/api";
 import ArtworkDrawer from "./artwork-drawer";
 import ExhibitionLabel from "./exhibition-label";
 import ArtworkDetailsDrawer from "./artwork-details-drawer";
+import Image from "next/image";
 
 type ArtworksClientProps = {
   initialArtworks: Artwork[];
@@ -241,14 +242,24 @@ export default function ArtworksClient({
                 className="block w-full text-left"
               >
                 {/* Artwork image placeholder */}
-                <div className="aspect-[4/5] bg-gray-100">
-                  <div className="flex h-full items-center justify-center">
-                    <ImageIcon
-                      size={30}
-                      strokeWidth={1.4}
-                      className="text-gray-400"
+                <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                  {artwork.image_url ? (
+                    <Image
+                      src={artwork.image_url}
+                      alt={artwork.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover"
                     />
-                  </div>
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <ImageIcon
+                        size={30}
+                        strokeWidth={1.4}
+                        className="text-gray-400"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-5">
